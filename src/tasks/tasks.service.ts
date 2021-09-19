@@ -12,25 +12,10 @@ export class TasksService {
     @InjectRepository(TasksRepository)
     private tasksRepository: TasksRepository,
   ) {}
-  // getAllTasks(): Task[] {
-  //   return this.tasks;
-  // }
-  // getFilterdTasks(filterDto: GetTasksFilterDto): Task[] {
-  //   const { search, status } = filterDto;
-  //   let tasks = [...this.tasks];
-  //   if (status) {
-  //     tasks = tasks.filter((task) => task.status === status);
-  //   }
-  //   if (search) {
-  //     tasks = tasks.filter((task) => {
-  //       if (task.title.includes(search) || task.description.includes(search)) {
-  //         return true;
-  //       }
-  //       return false;
-  //     });
-  //   }
-  //   return tasks;
-  // }
+  getTasks = async (filterDto: GetTasksFilterDto): Promise<Task[]> => {
+    return this.tasksRepository.getTasks(filterDto);
+  };
+
   getTaskById = async (id: string): Promise<Task> => {
     const task = await this.tasksRepository.findOne(id);
 
@@ -41,24 +26,24 @@ export class TasksService {
     return task;
   };
 
-  // updateStatus(id: string, status: TaskStatus): Task {
-  //   const task = this.getTaskById(id);
-  //   task.status = status;
-  //   return task;
-  // }
-  // createTask(createTaskDto: CreateTaskDto): Task {
-  //   const { title, description } = createTaskDto;
-  //   const newTask: Task = {
-  //     id: uuidV4(),
-  //     title: title,
-  //     description: description,
-  //     status: TaskStatus.OPEN,
-  //   };
-  //   this.tasks.push(newTask);
-  //   return newTask;
-  // }
-  // deleteTaskById(id: string): void {
-  //   const taskToDelete = this.getTaskById(id);
-  //   this.tasks = this.tasks.filter((task) => task.id !== taskToDelete.id);
-  // }
+  updateStatus = async (id: string, status: TaskStatus): Promise<Task> => {
+    const task = await this.getTaskById(id);
+
+    task.status = status;
+    await this.tasksRepository.save(task);
+
+    return task;
+  };
+
+  createTask = (createTaskDto: CreateTaskDto): Promise<Task> => {
+    return this.tasksRepository.createTask(createTaskDto);
+  };
+
+  deleteTaskById = async (id: string): Promise<void> => {
+    const result = await this.tasksRepository.delete(id);
+
+    if (!result.affected) {
+      throw new NotFoundException('Required task was not found');
+    }
+  };
 }
