@@ -7,8 +7,10 @@ import {
 @ValidatorConstraint({ name: 'MatchPasswords', async: false })
 export class MatchPasswords implements ValidatorConstraintInterface {
   validate(passwordConfirm: string, args: ValidationArguments) {
-    if (passwordConfirm !== (args.object as any)[args.constraints[0]])
+    if (passwordConfirm !== (args.object as any)[args.constraints[0]]) {
       return false;
+    }
+
     return true;
   }
 
